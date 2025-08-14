@@ -1,5 +1,6 @@
+const { response } = require("express");
 const { chatApi } = require("../utils/api");
-const { BadRequestError } = require("../utils/ErrorHandling");
+const { BadRequestError, NotFoundError } = require("../utils/ErrorHandling");
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -10,7 +11,7 @@ module.exports = {
     try {
       const { prompt } = req.body;
       if (!prompt) {
-        return next(new BadRequestError("Prompt is required"));
+        throw new BadRequestError("Prompt is required").send(res);
       }
       const conversationId = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
 
@@ -35,26 +36,27 @@ module.exports = {
       res.status(200).json({
         is_final: true,
         conversation_id: conversationId.toString(),
-        result: promptRes.data.split("<EOF>")[0],
+        response: promptRes.data.split("<EOF>")[0],
       });
     } catch (error) {
-      next(new BadRequestError(error.message));
+      throw new BadRequestError(error.message).send(res);
     }
   },
 
   getConversation: async (req, res, next) => {
     const { id } = req.params;
     try {
+      console.log("w");
       const conversationRes = await chatApi(`/${id}`, {
         method: "get",
       });
       res.status(200).json({
         is_final: true,
         conversation_id: id,
-        result: conversationRes.data.split("<EOF>")[0],
+        response: conversationRes.data.split("<EOF>")[0],
       });
     } catch (error) {
-      next(new BadRequestError(error.message));
+      throw new NotFoundError(error.message).send(res);
     }
   },
   continueConversation: async (req, res, next) => {
@@ -63,7 +65,7 @@ module.exports = {
     try {
       const { prompt } = req.body;
       if (!prompt) {
-        return next(new BadRequestError("Prompt is required"));
+        throw new BadRequestError("Prompt is required").send(res);
       }
 
       await chatApi(`/${id}`, {
@@ -81,10 +83,10 @@ module.exports = {
       res.status(200).json({
         is_final: true,
         conversation_id: id,
-        result: promptRes.data.split("<EOF>")[0],
+        response: promptRes.data.split("<EOF>")[0],
       });
     } catch (error) {
-      next(new BadRequestError(error.message));
+      throw new NotFoundError(error.message).send(res);
     }
   },
 };

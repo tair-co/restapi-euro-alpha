@@ -6,6 +6,7 @@ const app = express();
 const cors = require("cors");
 
 const routeConv = require("./routes/chat.route");
+const routeImage = require("./routes/image.route");
 
 app.use(express.text());
 app.use(express.json());
@@ -14,9 +15,12 @@ app.use(cors());
 // handler errors
 app.use(errorHandler);
 
-// routes
-app.use("/conversation", routeConv);
+// images folder static
+app.use("/images", express.static("images"));
 
+// routes
+app.use("/api/chat/conversation", routeConv);
+app.use("/api/imagegeneration", routeImage);
 // db connection
 
 sequelize

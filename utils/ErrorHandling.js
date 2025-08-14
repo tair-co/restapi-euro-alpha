@@ -1,11 +1,25 @@
 class ApiError extends Error {
   constructor(message, statusCode) {
     super(message);
-    this.statusCode = statusCode;
+    this.statusCode = statusCode || 500;
+    this.name = this.constructor.name;
     Error.captureStackTrace(this, this.constructor);
+  }
+
+  send(res) {
+    return res
+      .status(this.statusCode)
+      .type("application/problem+json")
+      .json({
+        type: `/problem/types/${this.statusCode}`,
+        title: this.name || "Error",
+        status: this.statusCode,
+        detail: this.message || "Internal Server Error",
+      });
   }
 }
 
+// ----------- Конкретные типы ошибок -----------
 class BadRequestError extends ApiError {
   constructor(message = "Bad Request") {
     super(message, 400);
@@ -36,13 +50,13 @@ class ServiceUnavailableError extends ApiError {
   }
 }
 
+// ----------- Глобальный обработчик ошибок -----------
 const errorHandler = (err, req, res, next) => {
-  const status = err.statusCode || 500;
-  res.status(status).json({
-    success: false,
-    message: err.message || "Internal Server Error",
-    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
-  });
+  if (err instanceof ApiError) {
+    return err.send(res);
+  }
+
+  return new ApiError(err.message || "Internal Server Error", 500).send(res);
 };
 
 module.exports = {
