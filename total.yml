@@ -1,0 +1,246 @@
+openapi: 3.0.3
+info:
+  title: Unified API
+  version: 1.0.0
+
+paths:
+  /conversation:
+    post:
+      summary: Start conversation
+      operationId: chat_startConversation
+      tags: [Chat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "400": { $ref: "#/components/responses/ProblemResponse_400_BadRequest" }
+        "401":
+          { $ref: "#/components/responses/ProblemResponse_401_Unauthorized" }
+        "403":
+          { $ref: "#/components/responses/ProblemResponse_403_QuotaExceeded" }
+        "503":
+          {
+            $ref: "#/components/responses/ProblemResponse_503_ServiceUnavailable",
+          }
+
+  /conversation/{conversation_id}:
+    put:
+      summary: Continue a conversation
+      operationId: chat_continueConversation
+      tags: [Chat]
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "400": { $ref: "#/components/responses/ProblemResponse_400_BadRequest" }
+        "401":
+          { $ref: "#/components/responses/ProblemResponse_401_Unauthorized" }
+        "403":
+          { $ref: "#/components/responses/ProblemResponse_403_QuotaExceeded" }
+        "503":
+          {
+            $ref: "#/components/responses/ProblemResponse_503_ServiceUnavailable",
+          }
+    get:
+      summary: Get partial conversation response
+      operationId: chat_getResponse
+      tags: [Chat]
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "400": { $ref: "#/components/responses/ProblemResponse_400_BadRequest" }
+        "401":
+          { $ref: "#/components/responses/ProblemResponse_401_Unauthorized" }
+        "404": { $ref: "#/components/responses/ProblemResponse_404_NotFound" }
+        "503":
+          {
+            $ref: "#/components/responses/ProblemResponse_503_ServiceUnavailable",
+          }
+
+  /generate:
+    post:
+      summary: Generate image
+      operationId: imageGeneration_generate
+      tags: [Image Generation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImageGenerationRequest"
+      responses:
+        "200":
+          description: Job started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageGenerationJobResponse"
+        "400": { $ref: "#/components/responses/ProblemResponse_400_BadRequest" }
+        "401":
+          { $ref: "#/components/responses/ProblemResponse_401_Unauthorized" }
+        "403":
+          { $ref: "#/components/responses/ProblemResponse_403_QuotaExceeded" }
+        "503":
+          {
+            $ref: "#/components/responses/ProblemResponse_503_ServiceUnavailable",
+          }
+
+  /status/{job_id}:
+    get:
+      summary: Get image generation status
+      operationId: imageGeneration_status
+      tags: [Image Generation]
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageGenerationStatusResponse"
+        "400": { $ref: "#/components/responses/ProblemResponse_400_BadRequest" }
+        "401":
+          { $ref: "#/components/responses/ProblemResponse_401_Unauthorized" }
+        "404": { $ref: "#/components/responses/ProblemResponse_404_NotFound" }
+        "503":
+          {
+            $ref: "#/components/responses/ProblemResponse_503_ServiceUnavailable",
+          }
+
+  /recognize:
+    post:
+      summary: Recognize objects in an image
+      operationId: recognizeImage_recognize
+      tags: [Image Recognition]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Image file uploaded as multipart/form-data
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageRecognitionSuccessResponse"
+        "400": { $ref: "#/components/responses/ProblemResponse_400_BadRequest" }
+        "401":
+          { $ref: "#/components/responses/ProblemResponse_401_Unauthorized" }
+        "403":
+          { $ref: "#/components/responses/ProblemResponse_403_QuotaExceeded" }
+        "503":
+          {
+            $ref: "#/components/responses/ProblemResponse_503_ServiceUnavailable",
+          }
+
+components:
+  schemas:
+    ConversationInput:
+      type: object
+      properties:
+        prompt:
+          type: string
+      required: [prompt]
+
+    ConversationResponse:
+      type: object
+      properties:
+        conversation_id: { type: string }
+        response: { type: string }
+        is_final: { type: boolean }
+
+    ImageGenerationRequest:
+      type: object
+      properties:
+        prompt: { type: string }
+        size: { type: string }
+      required: [prompt]
+
+    ImageGenerationJobResponse:
+      type: object
+      properties:
+        job_id: { type: string }
+        status: { type: string }
+
+    ImageGenerationStatusResponse:
+      type: object
+      properties:
+        job_id: { type: string }
+        status: { type: string }
+        progress: { type: number, format: float }
+
+    ImageRecognitionSuccessResponse:
+      type: object
+      properties:
+        objects:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              probability:
+                type: number
+                format: float
+                description: Probability of the object being in the image 0-1
+              bounding_box:
+                type: object
+                properties:
+                  x: { type: integer }
+                  y: { type: integer }
+                  width: { type: integer }
+                  height: { type: integer }
+
+  responses:
+    ProblemResponse_400_BadRequest:
+      description: Bad request
+    ProblemResponse_401_Unauthorized:
+      description: Unauthorized
+    ProblemResponse_403_QuotaExceeded:
+      description: Quota exceeded
+    ProblemResponse_404_NotFound:
+      description: Not found
+    ProblemResponse_503_ServiceUnavailable:
+      description: Service unavailable
