@@ -10,6 +10,7 @@ const routeImage = require("./routes/image.route");
 const multer = require("multer");
 const middleware = require("./utils/authMiddleware");
 const recognizeObjectsInImage = require("./controllers/recognize");
+const BillingQuota = require("./models/BillingQuota");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

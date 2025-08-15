@@ -6,6 +6,8 @@ const {
 } = require("../utils/ErrorHandling");
 const path = require("path");
 const { saveImageFromUrl } = require("../utils/saveImageUrl");
+const ServiceUsage = require("../models/ServiceUsage");
+const ImageGeneration = require("../models/ImageGen");
 
 // second Ai functionality
 
@@ -22,6 +24,17 @@ module.exports = {
         data: {
           text_prompt: text_prompt,
         },
+      });
+      const serviceUsage = await ServiceUsage.create({
+        duration_in_ms: 0,
+        api_token_id: req.token_id,
+        service_id: 2,
+        usage_started_at: imageRes.data.started_at,
+      });
+
+      await ImageGeneration.create({
+        job_id: imageRes.data.job_id,
+        service_usage_id: serviceUsage.id,
       });
 
       res.status(200).json({
@@ -65,6 +78,27 @@ module.exports = {
       const fileName = `${id}.png`;
 
       await saveImageFromUrl(imageRes.data.image_url, saveFolder, fileName);
+
+      const image_generations = await ImageGeneration.findOne({
+        where: {
+          job_id: id,
+        },
+      });
+
+      const serviceUsage = await ServiceUsage.findOne({
+        where: {
+          id: image_generations.service_usage_id,
+        },
+      });
+
+      serviceUsage.update({
+        duration_in_ms: Math.round(
+          (new Date(imageRes.data.finished_at) -
+            new Date(serviceUsage.usage_started_at)) /
+            1000
+        ),
+      });
+      await serviceUsage.save();
 
       res.status(200).json({
         resource_id: imageRes.data.resource_id,

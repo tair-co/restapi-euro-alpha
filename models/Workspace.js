@@ -17,13 +17,9 @@ const Workspace = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    createdAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+    billing_quota_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
   },
   {

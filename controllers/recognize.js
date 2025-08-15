@@ -1,3 +1,4 @@
+const ServiceUsage = require("../models/ServiceUsage");
 const { recognizeApi } = require("../utils/api");
 const {
   ServiceUnavailableError,
@@ -6,6 +7,7 @@ const {
 const fs = require("fs");
 const path = require("path");
 const recognizeObjectsInImage = async (req, res, next) => {
+  const startTime = Date.now();
   try {
     const image = req.file;
 
@@ -32,6 +34,14 @@ const recognizeObjectsInImage = async (req, res, next) => {
         height: obj.bounding_box.right,
       },
     }));
+
+    const durationMs = Date.now() - startTime;
+    await ServiceUsage.create({
+      duration_in_ms: durationMs,
+      api_token_id: req.token_id,
+      service_id: 3,
+      usage_started_at: new Date(),
+    });
 
     res.status(200).json({
       objects: transformedObjects,

@@ -6,15 +6,14 @@ const User = require("./User");
 const BillingQuota = require("./BillingQuota");
 const Chat = require("./Chat");
 
-ApiToken.belongsTo(Workspace, { foreignKey: "workspaceId", as: "workspace" });
-Workspace.hasMany(ApiToken, { foreignKey: "workspaceId", as: "apiTokens" });
+ApiToken.belongsTo(Workspace, { foreignKey: "workspace_id", as: "workspace" });
+Workspace.hasMany(ApiToken, { foreignKey: "workspace_id", as: "apiTokens" });
 
-ServiceUsage.belongsTo(ApiToken, { foreignKey: { allowNull: false } });
-ServiceUsage.belongsTo(Service, { foreignKey: { allowNull: false } });
+ServiceUsage.belongsTo(ApiToken, { foreignKey: "api_token_id" });
+ServiceUsage.belongsTo(Service, { foreignKey: "service_id" });
 
 Workspace.belongsTo(User, { foreignKey: "user_id", as: "user" });
-Workspace.hasMany(ApiToken, { foreignKey: "workspaceId" });
-Workspace.hasOne(BillingQuota, { foreignKey: "workspaceId" });
+Workspace.hasMany(ApiToken, { foreignKey: "workspace_id" });
 
 Chat.belongsTo(Workspace, { foreignKey: "workspace_id", as: "workspace" });
 Chat.belongsTo(User, { foreignKey: "userId", as: "user" });

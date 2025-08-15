@@ -1,6 +1,7 @@
 const { response } = require("express");
 const { chatApi } = require("../utils/api");
 const { BadRequestError, NotFoundError } = require("../utils/ErrorHandling");
+const ServiceUsage = require("../models/ServiceUsage");
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -14,7 +15,6 @@ module.exports = {
         throw new BadRequestError("Prompt is required").send(res);
       }
       const conversationId = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
-
       await chatApi("", {
         method: "post",
         data: {
@@ -32,11 +32,22 @@ module.exports = {
       const promptRes = await chatApi(`/${conversationId}`, {
         method: "get",
       });
+      const responseData = promptRes.data.split("<EOF>");
+
+      // save service usage
+      await ServiceUsage.create({
+        duration_in_ms: Number(
+          responseData[1].replace("ms", "").replace("Took ", "")
+        ),
+        api_token_id: Number(req.token_id),
+        service_id: 1,
+        usage_started_at: new Date(),
+      });
 
       res.status(200).json({
         is_final: true,
         conversation_id: conversationId.toString(),
-        response: promptRes.data.split("<EOF>")[0],
+        response: responseData[0],
       });
     } catch (error) {
       throw new BadRequestError(error.message).send(res);
@@ -50,10 +61,23 @@ module.exports = {
       const conversationRes = await chatApi(`/${id}`, {
         method: "get",
       });
+      if (!conversationRes.data) {
+        throw new NotFoundError("Conversation not found").send(res);
+      }
+
+      const responseData = conversationRes.data.split("<EOF>");
+      await ServiceUsage.create({
+        duration_in_ms: Number(
+          responseData[1].replace("ms", "").replace("Took ", "")
+        ),
+        api_token_id: Number(req.token_id),
+        service_id: 1,
+        usage_started_at: new Date(),
+      });
       res.status(200).json({
         is_final: true,
         conversation_id: id,
-        response: conversationRes.data.split("<EOF>")[0],
+        response: responseData[0],
       });
     } catch (error) {
       throw new NotFoundError(error.message).send(res);
@@ -80,10 +104,20 @@ module.exports = {
         method: "get",
       });
 
+      const responseData = promptRes.data.split("<EOF>");
+      await ServiceUsage.create({
+        duration_in_ms: Number(
+          responseData[1].replace("ms", "").replace("Took ", "")
+        ),
+        api_token_id: Number(req.token_id),
+        service_id: 1,
+        usage_started_at: new Date(),
+      });
+
       res.status(200).json({
         is_final: true,
         conversation_id: id,
-        response: promptRes.data.split("<EOF>")[0],
+        response: responseData[0],
       });
     } catch (error) {
       throw new NotFoundError(error.message).send(res);
