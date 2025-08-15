@@ -12,6 +12,7 @@ const ImageGeneration = require("../models/ImageGen");
 // second Ai functionality
 
 module.exports = {
+  // Image controllers
   generateImage: async (req, res, next) => {
     try {
       const { text_prompt } = req.body;
@@ -45,6 +46,7 @@ module.exports = {
       next(new ServiceUnavailableError(error.message));
     }
   },
+  // Get image status
   getImageStatus: async (req, res, next) => {
     const { id } = req.params;
 
@@ -70,6 +72,7 @@ module.exports = {
       throw new NotFoundError(error.message).send(res);
     }
   },
+  // Get finished image
   getFinishedImage: async (req, res, next) => {
     const { id } = req.params;
     try {

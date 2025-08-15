@@ -7,6 +7,7 @@ const {
 const middleware = require("../utils/authMiddleware");
 const router = express.Router();
 
+// Chat routes
 router
   .post("", middleware, conversation)
   .get("/:id", middleware, getConversation)

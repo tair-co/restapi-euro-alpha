@@ -5,6 +5,8 @@ const ServiceUsage = require("../models/ServiceUsage");
 const Workspace = require("../models/Workspace");
 const { UnauthorizedError, ForbiddenError } = require("./ErrorHandling");
 
+// middleware
+
 const middleware = async (req, res, next) => {
   const token = req.header("X-API-TOKEN");
 

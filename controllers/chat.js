@@ -8,6 +8,7 @@ function delay(ms) {
 }
 
 module.exports = {
+  // Chat controllers
   conversation: async (req, res, next) => {
     try {
       const { prompt } = req.body;
@@ -97,7 +98,8 @@ module.exports = {
         data: prompt,
         headers: { "Content-Type": "text/plain" },
       });
-
+      // make request to chat API
+      // make delay for wait req
       await delay(2000);
 
       const promptRes = await chatApi(`/${id}`, {

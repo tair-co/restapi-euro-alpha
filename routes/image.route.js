@@ -1,9 +1,4 @@
 const express = require("express");
-const {
-  conversation,
-  getConversation,
-  continueConversation,
-} = require("../controllers/chat");
 const middleware = require("../utils/authMiddleware");
 const {
   generateImage,
@@ -15,6 +10,7 @@ const {
 } = require("../controllers/imageGen");
 const router = express.Router();
 
+// image generation routes
 router.post("/generate", middleware, generateImage);
 router.get("/status/:id", middleware, getImageStatus);
 router.get("/result/:id", middleware, getFinishedImage);

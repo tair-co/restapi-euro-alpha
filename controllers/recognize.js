@@ -6,6 +6,8 @@ const {
 } = require("../utils/ErrorHandling");
 const fs = require("fs");
 const path = require("path");
+
+// recognizing objects in images
 const recognizeObjectsInImage = async (req, res, next) => {
   const startTime = Date.now();
   try {
