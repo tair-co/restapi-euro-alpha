@@ -2,7 +2,7 @@ const { Sequelize } = require("sequelize");
 
 // connecting to db
 const sequelize = new Sequelize("euroskills2023", "root", "", {
-  host: "MySql-8.4",
+  host: "MySql-8.2",
   dialect: "mysql",
   logging: false,
   pool: {
@@ -14,3 +14,5 @@ const sequelize = new Sequelize("euroskills2023", "root", "", {
 });
 
 module.exports = sequelize;
+
+require("../models/index");
