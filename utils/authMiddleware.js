@@ -3,7 +3,7 @@ const BillingQuota = require("../models/BillingQuota");
 const Service = require("../models/Service");
 const ServiceUsage = require("../models/ServiceUsage");
 const Workspace = require("../models/Workspace");
-const { UnauthorizedError } = require("./ErrorHandling");
+const { UnauthorizedError, ForbiddenError } = require("./ErrorHandling");
 
 const middleware = async (req, res, next) => {
   const token = req.header("X-API-TOKEN");
@@ -57,7 +57,10 @@ const middleware = async (req, res, next) => {
       req.limit = quota.limit - countServicesQuota;
 
       if (req.limit < 0) {
-        throw new UnauthorizedError("Billing quota exceeded").send(res);
+        throw new ForbiddenError("Billing quota exceeded").send(res);
+      }
+      if (countServicesQuota >= quota.limit) {
+        throw new ForbiddenError("Billing quota exceeded").send(res);
       }
     }
     req.token_id = existingToken.id;
