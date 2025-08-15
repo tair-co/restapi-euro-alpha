@@ -9,6 +9,7 @@ const imageApi = axios.create({
 const recognizeApi = axios.create({
   baseURL: "http://localhost:9003",
 });
+
 module.exports = {
   chatApi,
   imageApi,
