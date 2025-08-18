@@ -65,6 +65,7 @@ const middleware = async (req, res, next) => {
         throw new ForbiddenError("Billing quota exceeded").send(res);
       }
     }
+    req.workspace_id = existingToken.workspace_id;
     req.token_id = existingToken.id;
   } catch (error) {
     throw new UnauthorizedError(error).send(res);

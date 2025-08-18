@@ -10,16 +10,33 @@ const Chat = sequelize.define(
       autoIncrement: true,
       allowNull: false,
     },
-    userId: {
-      type: DataTypes.INTEGER,
+    conversation_id: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    workspace_id: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
     status: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    prompt: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    response: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    is_final: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    service_usage_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     createdAt: {

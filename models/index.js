@@ -16,4 +16,4 @@ Workspace.belongsTo(User, { foreignKey: "user_id", as: "user" });
 Workspace.hasMany(ApiToken, { foreignKey: "workspace_id" });
 
 Chat.belongsTo(Workspace, { foreignKey: "workspace_id", as: "workspace" });
-Chat.belongsTo(User, { foreignKey: "userId", as: "user" });
+Chat.belongsTo(User, { foreignKey: "user_id", as: "user" });
