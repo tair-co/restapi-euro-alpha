@@ -126,6 +126,18 @@ module.exports = {
         },
       });
 
+      const serviceUsage = await ServiceUsage.create({
+        duration_in_ms: 0,
+        api_token_id: req.token_id,
+        service_id: 2,
+        usage_started_at: upscaleRes.data.started_at,
+      });
+
+      await ImageGeneration.create({
+        job_id: upscaleRes.data.job_id,
+        service_usage_id: serviceUsage.id,
+      });
+
       res.status(200).json({
         job_id: upscaleRes.data.job_id,
       });
@@ -146,6 +158,17 @@ module.exports = {
         data: {
           resource_id: resource_id,
         },
+      });
+      const serviceUsage = await ServiceUsage.create({
+        duration_in_ms: 0,
+        api_token_id: req.token_id,
+        service_id: 2,
+        usage_started_at: zoomInRes.data.started_at,
+      });
+
+      await ImageGeneration.create({
+        job_id: zoomInRes.data.job_id,
+        service_usage_id: serviceUsage.id,
       });
 
       res.status(200).json({
@@ -168,6 +191,17 @@ module.exports = {
         data: {
           resource_id: resource_id,
         },
+      });
+      const serviceUsage = await ServiceUsage.create({
+        duration_in_ms: 0,
+        api_token_id: req.token_id,
+        service_id: 2,
+        usage_started_at: zoomOutRes.data.started_at,
+      });
+
+      await ImageGeneration.create({
+        job_id: zoomOutRes.data.job_id,
+        service_usage_id: serviceUsage.id,
       });
 
       res.status(200).json({
