@@ -28,12 +28,13 @@ module.exports = {
         data: prompt,
         headers: { "Content-Type": "text/plain" },
       });
-
+      // make delay for wait req
       await delay(2000);
 
       const promptRes = await chatApi(`/${conversationId}`, {
         method: "get",
       });
+
       let responseData = "";
       let is_final = false;
 
@@ -50,18 +51,19 @@ module.exports = {
         });
       } else {
         responseData = [promptRes.data];
-
+        console.log(promptRes.data);
         const service_usage = await ServiceUsage.create({
           duration_in_ms: 0,
           api_token_id: Number(req.token_id),
           service_id: 1,
           usage_started_at: new Date(),
         });
+
         await Chat.create({
           conversation_id: conversationId.toString(),
           user_id: Number(req.user_id),
           prompt: prompt,
-          response: responseData[0],
+          response: promptRes.data,
           is_final: is_final,
           service_usage_id: service_usage.id,
           workspace_id: Number(req.workspace_id),
@@ -90,7 +92,14 @@ module.exports = {
       if (!conversationRes.data) {
         throw new NotFoundError("Conversation not found").send(res);
       }
-
+      if (!conversationRes.data.includes("<EOF>")) {
+        // If the response does not include <EOF>, it means the conversation is still ongoing
+        return res.status(200).json({
+          is_final: false,
+          conversation_id: id,
+          response: conversationRes.data,
+        });
+      }
       if (conversationRes.data.includes("<EOF>")) {
         const chat = await Chat.findOne({
           where: { conversation_id: id },
